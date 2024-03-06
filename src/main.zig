@@ -16,11 +16,24 @@ pub fn main() !void {
     try stdout.print("Run `zig build test` to run the tests.", .{});
     try stdout.print("Run `zig build test` to run the tests.\n", .{});
 
+    const width: i32 = 30;
+    const height: i32 = 10;
+
+    var screen = [_]u8{'.'} ** (width * height);
+    screen[0] = '#';
+
+    var playerX: i32 = 3;
+    var playerY: i32 = 3;
+
     while (true) {
-        for (0..10) |_| {
+        screen = [_]u8{'.'} ** (width * height);
+
+        screen[@intCast(playerY * width + playerX)] = '@';
+
+        for (0..height) |y| {
             try stdout.print("\n", .{});
-            for (0..30) |_| {
-                try stdout.print("#", .{});
+            for (0..width) |x| {
+                try stdout.print("{c}", .{screen[y * width + x]});
             }
         }
 
@@ -28,10 +41,18 @@ pub fn main() !void {
 
         const input: i32 = c.getch();
 
+        try stdout.writeByteNTimes('\n', 30);
+
         try stdout.print("\n ------------------------- \n", .{});
 
-        if (input == 'q')
-            break;
+        switch (input) {
+            'a' => playerX -= 1,
+            'd' => playerX += 1,
+            'w' => playerY -= 1,
+            's' => playerY += 1,
+            'q' => break,
+            else => {},
+        }
     }
 }
 

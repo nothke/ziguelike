@@ -6,15 +6,22 @@ Plan:
     ☐ Finish it! In time! Max 3 days!
 
 Setup:
-    ☐ Get latest zig version
-    ☐ Update zls
-    ☐ Create a new zig project
+    ✔ Get latest zig version @done(24-03-06 01:58)
+    ✔ Update zls @done(24-03-06 01:58)
+    ✔ Create a new zig project @done(24-03-06 01:58)
 
 Game:
-    ☐ 2D world
-    ☐ Player @
+    ✔ Draw some characters @done(24-03-06 01:58)
+    ✔ Read immediate input @done(24-03-06 02:34)
+    ✔ 2D world @done(24-03-06 02:34)
+    ✔ Player @ @done(24-03-06 02:34)
+    ✔ Player movement, turn based @done(24-03-06 02:34)
+    ☐ Try using roguelike h lib
+    ☐ @memset instead of new array?
+    ☐ \e[H\e[2J as code for clearing console and setting cursor to 0
     ☐ Rooms and walls
-    ☐ Player movement, turn based
+    ☐ 2d scrolling world
+    ☐ Turn player into a struct
     ☐ colliding with walls
     ☐ Items
     ☐ Inventory to store items
