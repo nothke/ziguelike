@@ -57,6 +57,10 @@ pub fn main() !void {
 
     world[toIndexXY(5, 5)].tileType = .Wall;
 
+    for (0..6) |i| {
+        world[toIndexXY(@intCast(i + 10), 6)].tileType = .Wall;
+    }
+
     var player = Player{
         .pos = .{ .x = 3, .y = 3 },
     };
