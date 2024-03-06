@@ -31,6 +31,7 @@ const Key = struct {
 
 const Door = struct {
     keyType: u8,
+    isOpen: bool,
 };
 
 const Item = union(enum) {
@@ -41,7 +42,7 @@ const Item = union(enum) {
     fn getSymbol(self: Item) u8 {
         return switch (self) {
             .key => 'f',
-            .door => 'D',
+            .door => if (self.door.isOpen) '\'' else 'D',
             else => unreachable,
         };
     }
@@ -98,7 +99,7 @@ pub fn main() !void {
 
     world[toIndexXY(2, 2)].item = .{ .key = .{ .keyType = 1 } };
     world[toIndexXY(3, 2)].item = .{ .key = .{ .keyType = 1 } };
-    world[toIndexXY(9, 5)].item = .{ .door = .{ .keyType = 1 } };
+    world[toIndexXY(9, 5)].item = .{ .door = .{ .keyType = 1, .isOpen = false } };
 
     // for (0..6) |i| {
     //     world[toIndexXY(@intCast(i + 10), 6)].tileType = .Wall;
@@ -191,7 +192,7 @@ pub fn main() !void {
                     }
                 } else {
                     if (doorTile) |doorTilePtr| {
-                        doorTilePtr.item = .empty;
+                        doorTilePtr.item.door.isOpen = !doorTilePtr.item.door.isOpen;
                     }
                 }
             },
@@ -213,7 +214,9 @@ pub fn main() !void {
         };
 
         const targetTile = &world[toIndex(targetCoord)];
-        if (targetTile.tileType == .Air and targetTile.item != .door) {
+        const doorExistsAndIsClosed = targetTile.item == .door and !targetTile.item.door.isOpen;
+
+        if (targetTile.tileType == .Air and !doorExistsAndIsClosed) {
             player.pos = targetCoord;
         }
     }
