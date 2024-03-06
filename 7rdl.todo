@@ -25,10 +25,12 @@ Game:
     ✔ Tiles @done(24-03-06 17:47)
     ✔ walls @done(24-03-06 18:05)
     ✔ colliding with walls @done(24-03-06 18:05)
-    ☐ rooms
-    ☐ 2d scrolling world
-    ☐ Items
+    ✔ rooms @done(24-03-06 18:38)
+    ✔ Items @done(24-03-06 18:38)
+    ✔ keys and doors @done(24-03-06 18:39)
     ☐ Inventory to store items
+    ☐ unlocking doors with keys
     ☐ NPCs
+    ☐ 2d scrolling world
     ☐ Procedural rooms
     ☐ Goal..?

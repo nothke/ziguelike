@@ -22,6 +22,21 @@ const TileType = enum {
 const Tile = struct {
     pos: Coord = .{ .x = 0, .y = 0 },
     tileType: TileType = .Air,
+    item: Item = .empty,
+};
+
+const Key = struct {
+    keyType: u8,
+};
+
+const Door = struct {
+    keyType: u8,
+};
+
+const Item = union(enum) {
+    empty,
+    key: Key,
+    door: Door,
 };
 
 const width: i32 = 30;
@@ -73,6 +88,9 @@ pub fn main() !void {
 
     world[toIndexXY(5, 5)].tileType = .Wall;
 
+    world[toIndexXY(2, 2)].item = .{ .key = .{ .keyType = 1 } };
+    world[toIndexXY(9, 5)].item = .{ .door = .{ .keyType = 1 } };
+
     // for (0..6) |i| {
     //     world[toIndexXY(@intCast(i + 10), 6)].tileType = .Wall;
     // }
@@ -85,8 +103,15 @@ pub fn main() !void {
     while (true) {
         //@memset(&screen, '.');
 
+        // Drawing
         for (world, &screen) |tile, *pixel| {
             pixel.* = if (tile.tileType == .Air) '.' else '#';
+
+            switch (tile.item) {
+                .key => pixel.* = 'f',
+                .door => pixel.* = 'D',
+                else => continue,
+            }
         }
 
         screen[toIndex(player.pos)] = '@';
@@ -100,11 +125,13 @@ pub fn main() !void {
             }
         }
 
+        try stdout.print("\n\nplayer: {}, {}", .{ player.pos.x, player.pos.y });
+
         try bw.flush();
 
         const input: i32 = c.getch();
 
-        try stdout.print("\n ------------------------- \n", .{});
+        //try stdout.print("\n ------------------------- \n", .{});
 
         var desiredMove = zero;
 
@@ -122,7 +149,8 @@ pub fn main() !void {
             .y = player.pos.y + desiredMove.y,
         };
 
-        if (world[toIndex(targetCoord)].tileType == .Air) {
+        const targetTile = &world[toIndex(targetCoord)];
+        if (targetTile.tileType == .Air and targetTile.item != .door) {
             player.pos = targetCoord;
         }
     }
