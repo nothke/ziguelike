@@ -29,6 +29,10 @@ fn toIndex(pos: Coord) u32 {
     return @intCast(pos.y * width + pos.x);
 }
 
+fn toIndexXY(x: i32, y: i32) u32 {
+    return @intCast(y * width + x);
+}
+
 fn toCoord(i: u32) Coord {
     return Coord{
         .x = @intCast(i % width),
@@ -51,12 +55,19 @@ pub fn main() !void {
         //try stdout.print("index: {}, coord x: {}, y: {}\n", .{ i, tile.pos.x, tile.pos.y });
     }
 
+    world[toIndexXY(5, 5)].tileType = .Wall;
+
     var player = Player{
         .pos = .{ .x = 3, .y = 3 },
     };
 
+    // #LOOP
     while (true) {
-        @memset(&screen, '.');
+        //@memset(&screen, '.');
+
+        for (world, &screen) |tile, *pixel| {
+            pixel.* = if (tile.tileType == .Air) '.' else '#';
+        }
 
         screen[toIndex(player.pos)] = '@';
 
