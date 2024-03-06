@@ -17,11 +17,11 @@ Game:
     ✔ Player @ @done(24-03-06 02:34)
     ✔ Player movement, turn based @done(24-03-06 02:34)
     --- End of day 1 ---
-    ☐ Try using roguelike h lib
-    ☐ Clean unnecessary lines
-    ☐ @memset instead of new array?
-    ☐ \e[H\e[2J as code for clearing console and setting cursor to 0 ("\x1B[2J\x1B[H")
-    ☐ Turn player into a struct
+    ✘ Try using roguelike h lib @cancelled(24-03-06 17:15)
+    ✔ Clean unnecessary lines @done(24-03-06 17:19)
+    ✔ @memset instead of new array? @done(24-03-06 17:24)
+    ✔ \e[H\e[2J as code for clearing console and setting cursor to 0 ("\x1B[2J\x1B[H") @done(24-03-06 17:24)
+    ✔ Turn player into a struct @done(24-03-06 17:31)
     ☐ Tiles
     ☐ Rooms and walls
     ☐ colliding with walls

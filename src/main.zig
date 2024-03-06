@@ -12,11 +12,28 @@ const Player = struct {
     pos: Coord,
 };
 
+const TileType = enum {
+    Air,
+    Wall,
+};
+
+const Tile = struct {
+    pos: Coord = .{ .x = 0, .y = 0 },
+    tileType: TileType = .Air,
+};
+
 const width: i32 = 30;
 const height: i32 = 10;
 
 fn toIndex(pos: Coord) u32 {
     return @intCast(pos.y * width + pos.x);
+}
+
+fn toCoord(i: u32) Coord {
+    return Coord{
+        .x = @intCast(i % width),
+        .y = @intCast(@divFloor(i, width)),
+    };
 }
 
 pub fn main() !void {
@@ -26,6 +43,13 @@ pub fn main() !void {
 
     var screen = [_]u8{'.'} ** (width * height);
     screen[0] = '#';
+
+    var world = [_]Tile{.{}} ** (width * height);
+
+    for (&world, 0..world.len) |*tile, i| {
+        tile.pos = toCoord(@intCast(i));
+        //try stdout.print("index: {}, coord x: {}, y: {}\n", .{ i, tile.pos.x, tile.pos.y });
+    }
 
     var player = Player{
         .pos = .{ .x = 3, .y = 3 },
