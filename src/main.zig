@@ -3,24 +3,38 @@ const c = @cImport({
     @cInclude("conio.h");
 });
 
+const Coord = struct {
+    x: i32,
+    y: i32,
+};
+
+const Player = struct {
+    pos: Coord,
+};
+
+const width: i32 = 30;
+const height: i32 = 10;
+
+fn toIndex(pos: Coord) u32 {
+    return @intCast(pos.y * width + pos.x);
+}
+
 pub fn main() !void {
     const stdout_file = std.io.getStdOut().writer();
     var bw = std.io.bufferedWriter(stdout_file);
     const stdout = bw.writer();
 
-    const width: i32 = 30;
-    const height: i32 = 10;
-
     var screen = [_]u8{'.'} ** (width * height);
     screen[0] = '#';
 
-    var playerX: i32 = 3;
-    var playerY: i32 = 3;
+    var player = Player{
+        .pos = .{ .x = 3, .y = 3 },
+    };
 
     while (true) {
         @memset(&screen, '.');
 
-        screen[@intCast(playerY * width + playerX)] = '@';
+        screen[toIndex(player.pos)] = '@';
 
         try stdout.print("\x1B[2J\x1B[H", .{});
 
@@ -38,10 +52,10 @@ pub fn main() !void {
         try stdout.print("\n ------------------------- \n", .{});
 
         switch (input) {
-            'a' => playerX -= 1,
-            'd' => playerX += 1,
-            'w' => playerY -= 1,
-            's' => playerY += 1,
+            'a' => player.pos.x -= 1,
+            'd' => player.pos.x += 1,
+            'w' => player.pos.y -= 1,
+            's' => player.pos.y += 1,
             'q' => break,
             else => {},
         }
