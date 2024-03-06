@@ -16,13 +16,16 @@ Game:
     ✔ 2D world @done(24-03-06 02:34)
     ✔ Player @ @done(24-03-06 02:34)
     ✔ Player movement, turn based @done(24-03-06 02:34)
+    --- End of day 1 ---
     ☐ Try using roguelike h lib
+    ☐ Clean unnecessary lines
     ☐ @memset instead of new array?
-    ☐ \e[H\e[2J as code for clearing console and setting cursor to 0
-    ☐ Rooms and walls
-    ☐ 2d scrolling world
+    ☐ \e[H\e[2J as code for clearing console and setting cursor to 0 ("\x1B[2J\x1B[H")
     ☐ Turn player into a struct
+    ☐ Tiles
+    ☐ Rooms and walls
     ☐ colliding with walls
+    ☐ 2d scrolling world
     ☐ Items
     ☐ Inventory to store items
     ☐ NPCs

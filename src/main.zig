@@ -4,17 +4,9 @@ const c = @cImport({
 });
 
 pub fn main() !void {
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
-
     const stdout_file = std.io.getStdOut().writer();
     var bw = std.io.bufferedWriter(stdout_file);
     const stdout = bw.writer();
-
-    const stdin = std.io.getStdIn().reader();
-    _ = stdin; // autofix
-
-    try stdout.print("Run `zig build test` to run the tests.", .{});
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
 
     const width: i32 = 30;
     const height: i32 = 10;
@@ -26,9 +18,11 @@ pub fn main() !void {
     var playerY: i32 = 3;
 
     while (true) {
-        screen = [_]u8{'.'} ** (width * height);
+        @memset(&screen, '.');
 
         screen[@intCast(playerY * width + playerX)] = '@';
+
+        try stdout.print("\x1B[2J\x1B[H", .{});
 
         for (0..height) |y| {
             try stdout.print("\n", .{});
@@ -41,8 +35,6 @@ pub fn main() !void {
 
         const input: i32 = c.getch();
 
-        try stdout.writeByteNTimes('\n', 30);
-
         try stdout.print("\n ------------------------- \n", .{});
 
         switch (input) {
@@ -54,11 +46,4 @@ pub fn main() !void {
             else => {},
         }
     }
-}
-
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
 }
