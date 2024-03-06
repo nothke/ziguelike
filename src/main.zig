@@ -8,6 +8,8 @@ const Coord = struct {
     y: i32,
 };
 
+const zero = Coord{ .x = 0, .y = 0 };
+
 const Player = struct {
     pos: Coord,
 };
@@ -40,6 +42,16 @@ fn toCoord(i: u32) Coord {
     };
 }
 
+fn placeRoom(world: []Tile, x: i32, y: i32, w: i32, h: i32) void {
+    for (0..@intCast(w)) |xi| {
+        for (0..@intCast(h)) |yi| {
+            const xi32: i32 = @intCast(xi);
+            const yi32: i32 = @intCast(yi);
+            world[toIndexXY(x + xi32, y + yi32)].tileType = .Air;
+        }
+    }
+}
+
 pub fn main() !void {
     const stdout_file = std.io.getStdOut().writer();
     var bw = std.io.bufferedWriter(stdout_file);
@@ -48,18 +60,22 @@ pub fn main() !void {
     var screen = [_]u8{'.'} ** (width * height);
     screen[0] = '#';
 
-    var world = [_]Tile{.{}} ** (width * height);
+    var world = [_]Tile{.{ .tileType = .Wall }} ** (width * height);
 
     for (&world, 0..world.len) |*tile, i| {
         tile.pos = toCoord(@intCast(i));
         //try stdout.print("index: {}, coord x: {}, y: {}\n", .{ i, tile.pos.x, tile.pos.y });
     }
 
+    placeRoom(&world, 2, 2, 6, 6);
+    placeRoom(&world, 10, 2, 12, 6);
+    placeRoom(&world, 5, 5, 5, 1);
+
     world[toIndexXY(5, 5)].tileType = .Wall;
 
-    for (0..6) |i| {
-        world[toIndexXY(@intCast(i + 10), 6)].tileType = .Wall;
-    }
+    // for (0..6) |i| {
+    //     world[toIndexXY(@intCast(i + 10), 6)].tileType = .Wall;
+    // }
 
     var player = Player{
         .pos = .{ .x = 3, .y = 3 },
@@ -90,13 +106,24 @@ pub fn main() !void {
 
         try stdout.print("\n ------------------------- \n", .{});
 
+        var desiredMove = zero;
+
         switch (input) {
-            'a' => player.pos.x -= 1,
-            'd' => player.pos.x += 1,
-            'w' => player.pos.y -= 1,
-            's' => player.pos.y += 1,
+            'a' => desiredMove.x = -1,
+            'd' => desiredMove.x = 1,
+            'w' => desiredMove.y = -1,
+            's' => desiredMove.y = 1,
             'q' => break,
             else => {},
+        }
+
+        const targetCoord = Coord{
+            .x = player.pos.x + desiredMove.x,
+            .y = player.pos.y + desiredMove.y,
+        };
+
+        if (world[toIndex(targetCoord)].tileType == .Air) {
+            player.pos = targetCoord;
         }
     }
 }

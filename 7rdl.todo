@@ -23,8 +23,9 @@ Game:
     ✔ \e[H\e[2J as code for clearing console and setting cursor to 0 ("\x1B[2J\x1B[H") @done(24-03-06 17:24)
     ✔ Turn player into a struct @done(24-03-06 17:31)
     ✔ Tiles @done(24-03-06 17:47)
-    ☐ Rooms and walls
-    ☐ colliding with walls
+    ✔ walls @done(24-03-06 18:05)
+    ✔ colliding with walls @done(24-03-06 18:05)
+    ☐ rooms
     ☐ 2d scrolling world
     ☐ Items
     ☐ Inventory to store items
