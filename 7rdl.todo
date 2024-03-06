@@ -28,7 +28,10 @@ Game:
     ✔ rooms @done(24-03-06 18:38)
     ✔ Items @done(24-03-06 18:38)
     ✔ keys and doors @done(24-03-06 18:39)
-    ☐ Inventory to store items
+    --- End of stream 2 ---
+    ✔ Inventory to store ~~items~~ an item @done(24-03-07 00:04)
+    ✔ Take items @done(24-03-07 00:04)
+    ✔ Dropping items @done(24-03-07 00:04)
     ☐ unlocking doors with keys
     ☐ NPCs
     ☐ 2d scrolling world

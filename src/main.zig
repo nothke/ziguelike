@@ -37,6 +37,14 @@ const Item = union(enum) {
     empty,
     key: Key,
     door: Door,
+
+    fn getSymbol(self: Item) u8 {
+        return switch (self) {
+            .key => 'f',
+            .door => 'D',
+            else => unreachable,
+        };
+    }
 };
 
 const width: i32 = 30;
@@ -89,6 +97,7 @@ pub fn main() !void {
     world[toIndexXY(5, 5)].tileType = .Wall;
 
     world[toIndexXY(2, 2)].item = .{ .key = .{ .keyType = 1 } };
+    world[toIndexXY(3, 2)].item = .{ .key = .{ .keyType = 1 } };
     world[toIndexXY(9, 5)].item = .{ .door = .{ .keyType = 1 } };
 
     // for (0..6) |i| {
@@ -99,6 +108,8 @@ pub fn main() !void {
         .pos = .{ .x = 3, .y = 3 },
     };
 
+    var heldItem: ?Item = null;
+
     // #LOOP
     while (true) {
         //@memset(&screen, '.');
@@ -107,10 +118,8 @@ pub fn main() !void {
         for (world, &screen) |tile, *pixel| {
             pixel.* = if (tile.tileType == .Air) '.' else '#';
 
-            switch (tile.item) {
-                .key => pixel.* = 'f',
-                .door => pixel.* = 'D',
-                else => continue,
+            if (tile.item != .empty) {
+                pixel.* = tile.item.getSymbol();
             }
         }
 
@@ -127,6 +136,40 @@ pub fn main() !void {
 
         try stdout.print("\n\nplayer: {}, {}", .{ player.pos.x, player.pos.y });
 
+        const playerTile = world[toIndex(player.pos)];
+
+        var itemToTake: ?Item = null;
+
+        if (playerTile.item != .empty) {
+            switch (playerTile.item) {
+                .key => |key| {
+                    try stdout.print("\nkey: {}, press space to take", .{key.keyType});
+                    itemToTake = playerTile.item;
+                },
+                else => {},
+            }
+        }
+
+        if (heldItem) |item| {
+            try stdout.print("\nHeld: {c}", .{item.getSymbol()});
+        }
+
+        var doorTile: ?*Tile = null;
+
+        if (heldItem) |item| {
+            if (item == .key) {
+                for (@intCast(player.pos.x - 1)..@intCast(player.pos.x + 2)) |x| {
+                    const tile = &world[toIndexXY(@intCast(x), player.pos.y)];
+                    if (tile.item == .door) {
+                        doorTile = tile;
+                        //doorToUnlock = tile.item.door;
+                        try stdout.print("\nCan unlock door\n", .{});
+                        break;
+                    }
+                }
+            }
+        }
+
         try bw.flush();
 
         const input: i32 = c.getch();
@@ -140,6 +183,26 @@ pub fn main() !void {
             'd' => desiredMove.x = 1,
             'w' => desiredMove.y = -1,
             's' => desiredMove.y = 1,
+            ' ' => {
+                if (itemToTake) |item| {
+                    if (heldItem == null) {
+                        heldItem = item;
+                        world[toIndex(player.pos)].item = .empty;
+                    }
+                } else {
+                    if (doorTile) |doorTilePtr| {
+                        doorTilePtr.item = .empty;
+                    }
+                }
+            },
+            'e' => {
+                if (heldItem) |item| {
+                    if (itemToTake == null) {
+                        world[toIndex(player.pos)].item = item;
+                        heldItem = null;
+                    }
+                }
+            },
             'q' => break,
             else => {},
         }
