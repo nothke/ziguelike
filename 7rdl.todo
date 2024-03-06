@@ -1,0 +1,23 @@
+
+
+Plan:
+    ☐ Make a roguelike in Zig
+    ☐ Use only the console
+    ☐ Finish it! In time! Max 3 days!
+
+Setup:
+    ☐ Get latest zig version
+    ☐ Update zls
+    ☐ Create a new zig project
+
+Game:
+    ☐ 2D world
+    ☐ Player @
+    ☐ Rooms and walls
+    ☐ Player movement, turn based
+    ☐ colliding with walls
+    ☐ Items
+    ☐ Inventory to store items
+    ☐ NPCs
+    ☐ Procedural rooms
+    ☐ Goal..?
