@@ -3,7 +3,7 @@
 Plan:
     ☐ Make a roguelike in Zig
     ☐ Use only the console
-    ☐ Finish it! In time! Max 3 days!
+    ☐ Finish it! In time! Max 3+ 5- days!
 
 Setup:
     ✔ Get latest zig version @done(24-03-06 01:58)
@@ -37,9 +37,16 @@ Game:
     ✔ Display messages with ? item @done(24-03-07 01:10)
     ✔ Update zig with a potential fix @done(24-03-07 01:21)
     --- End of stream 3 - day 2 ---
+    Improve the text:
+        ✔ Holding item: red key - 'e' to drop @done(24-03-07 17:51)
+        ✔ Standing on: red key - 'space' to take @done(24-03-07 17:51)
     ☐ Make sure not to drop items on top of other items
     ☐ 2d scrolling world
-    ☐ Make some bombs
-    ☐ NPCs
-    ☐ Procedural rooms
-    ☐ Goal..?
+    ☐ Make some bombs that destroy walls
+    ☐ Make some plants that can grow
+    ☐ Add a bucket with which you can pick up water
+
+    Later:
+        ☐ NPCs
+        ☐ Procedural rooms
+        ☐ Goal..?

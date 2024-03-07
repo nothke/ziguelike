@@ -25,12 +25,24 @@ const Tile = struct {
     item: ?Item = null,
 };
 
+// -- Items --
+
+const KeyType = enum { Red, Blue, Green };
+
 const Key = struct {
-    keyType: u8,
+    keyType: KeyType,
+
+    fn getKeyString(self: Key) []const u8 {
+        return @tagName(self.keyType);
+    }
+
+    fn toString(comptime self: Key) []const u8 {
+        return @tagName(self.keyType) ++ " key";
+    }
 };
 
 const Door = struct {
-    keyType: u8,
+    keyType: KeyType,
     isOpen: bool,
 };
 
@@ -38,17 +50,32 @@ const Info = struct {
     message: []const u8,
 };
 
+const Bomb = struct {
+    timer: i32 = 5,
+};
+
 const Item = union(enum) {
     key: Key,
     door: Door,
     info: Info,
+    bomb: Bomb,
 
     fn getSymbol(self: Item) u8 {
         return switch (self) {
             .key => 'f',
             .door => if (self.door.isOpen) '\'' else 'D',
             .info => '?',
+            .bomb => '=',
         };
+    }
+
+    fn print(self: Item, stdout: anytype) !void {
+        switch (self) {
+            .key => |key| try stdout.print("{s} key", .{@tagName(key.keyType)}),
+            .door => |door| try stdout.print("{s} door", .{@tagName(door.keyType)}),
+            .info => {},
+            .bomb => try stdout.print("bomb", .{}),
+        }
     }
 };
 
@@ -101,13 +128,14 @@ pub fn main() !void {
 
     world[toIndexXY(5, 5)].tileType = .Wall;
 
-    world[toIndexXY(2, 2)].item = .{ .key = .{ .keyType = 1 } };
-    world[toIndexXY(5, 7)].item = .{ .key = .{ .keyType = 1 } };
-    world[toIndexXY(9, 5)].item = .{ .door = .{ .keyType = 1, .isOpen = false } };
+    world[toIndexXY(2, 2)].item = .{ .key = .{ .keyType = .Red } };
+    world[toIndexXY(5, 7)].item = .{ .key = .{ .keyType = .Red } };
+    world[toIndexXY(9, 5)].item = .{ .door = .{ .keyType = .Red, .isOpen = false } };
 
     world[toIndexXY(2, 3)].item = .{ .info = .{ .message = "Hello world!" } };
     world[toIndexXY(2, 4)].item = .{ .info = .{ .message = "Welcome to the dungeon!!" } };
     world[toIndexXY(2, 6)].item = .{ .info = .{ .message = "This is a very scary, very scary dungeon!!!" } };
+    world[toIndexXY(5, 6)].item = .{ .bomb = .{} };
 
     // for (0..6) |i| {
     //     world[toIndexXY(@intCast(i + 10), 6)].tileType = .Wall;
@@ -152,17 +180,27 @@ pub fn main() !void {
 
         if (playerTile.item) |playerTileItem| {
             switch (playerTileItem) {
-                .key => |key| {
-                    try stdout.print("\nkey: {}, press space to take", .{key.keyType});
-                    itemToTake = playerTileItem;
-                },
                 .info => |info| try stdout.print("\nMessage: {s}", .{info.message}),
-                else => {},
+                else => |item| {
+                    // For items that can be taken:
+
+                    try stdout.print("\nStanding on: ", .{});
+
+                    try item.print(stdout);
+                    itemToTake = playerTileItem;
+
+                    try stdout.print(". Press space to take", .{});
+                },
             }
         }
 
         if (heldItem) |item| {
-            try stdout.print("\nHeld: {c}", .{item.getSymbol()});
+            try stdout.print("\nHolding: ", .{});
+            try item.print(stdout);
+
+            if (playerTile.item == null) {
+                try stdout.print(". Press E to drop", .{});
+            }
         }
 
         var doorTile: ?*Tile = null;
@@ -178,7 +216,6 @@ pub fn main() !void {
                         if (tile.item) |tileItem| {
                             if (tileItem == .door) {
                                 doorTile = tile;
-                                //doorToUnlock = tile.item.door;
                                 const lockText = if (tileItem.door.isOpen) "lock" else "unlock";
                                 try stdout.print("\nSpace to {sd} door\n", .{lockText});
                                 break;
@@ -222,7 +259,7 @@ pub fn main() !void {
             },
             'e' => {
                 if (heldItem) |item| {
-                    if (itemToTake == null) {
+                    if (playerTile.item == null) {
                         world[toIndex(player.pos)].item = item;
                         heldItem = null;
                     }
