@@ -291,12 +291,14 @@ pub fn main() !void {
 
         const input: i32 = c.getch();
 
-        // Update items state
         for (&world) |*tile| {
             if (tile.tileType == .ExplosionSmoke) {
                 tile.tileType = .Air;
             }
+        }
 
+        // Update items state
+        for (&world) |*tile| {
             if (tile.item != null and tile.item.? == .bomb and tile.item.?.bomb.armed) {
                 tile.item.?.bomb.timer -= 1;
 
@@ -304,10 +306,12 @@ pub fn main() !void {
                     // #BOOM
                     tile.item = null;
 
-                    var bx: i32 = tile.pos.x - 1;
-                    while (bx <= tile.pos.x + 1) : (bx += 1) {
-                        var by: i32 = tile.pos.y - 1;
-                        while (by <= tile.pos.y + 1) : (by += 1) {
+                    const tp = tile.pos;
+
+                    var by: i32 = tp.y - 1;
+                    while (by <= tp.y + 1) : (by += 1) {
+                        var bx: i32 = tp.x - 1;
+                        while (bx <= tp.x + 1) : (bx += 1) {
                             world[xy2i(bx, by)].item = null;
                             world[xy2i(bx, by)].tileType = .ExplosionSmoke;
                         }
