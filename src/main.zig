@@ -21,6 +21,7 @@ const Player = struct {
 const TileType = enum {
     Air,
     Wall,
+    ExplosionSmoke,
 };
 
 const Tile = struct {
@@ -149,7 +150,10 @@ pub fn main() !void {
     world[xy2i(2, 3)].item = .{ .info = .{ .message = "Hello world!" } };
     world[xy2i(2, 4)].item = .{ .info = .{ .message = "Welcome to the dungeon!!" } };
     world[xy2i(2, 6)].item = .{ .info = .{ .message = "This is a very scary, very scary dungeon!!!" } };
+
     world[xy2i(5, 6)].item = .{ .bomb = .{} };
+    world[xy2i(6, 6)].item = .{ .bomb = .{} };
+    world[xy2i(7, 6)].item = .{ .bomb = .{} };
 
     // for (0..6) |i| {
     //     world[toIndexXY(@intCast(i + 10), 6)].tileType = .Wall;
@@ -190,12 +194,19 @@ pub fn main() !void {
         while (sy < screenHeight) : (sy += 1) {
             var sx: i32 = 0;
             while (sx < screenWidth) : (sx += 1) {
-                const worldCoord = Coord{ .x = sx + screenStart.x, .y = sy + screenStart.y };
+                const worldCoord = Coord{
+                    .x = screenStart.x + sx,
+                    .y = screenStart.y + sy,
+                };
 
                 const tile = &world[c2i(worldCoord)];
                 const pixel = &screen[@intCast(sy * screenWidth + sx)];
 
-                pixel.* = if (tile.tileType == .Air) '.' else '#';
+                pixel.* = switch (tile.tileType) {
+                    .Air => '.',
+                    .Wall => '#',
+                    .ExplosionSmoke => 'x',
+                };
 
                 if (tile.item) |item| {
                     pixel.* = item.getSymbol();
@@ -280,19 +291,25 @@ pub fn main() !void {
 
         const input: i32 = c.getch();
 
+        // Update items state
         for (&world) |*tile| {
+            if (tile.tileType == .ExplosionSmoke) {
+                tile.tileType = .Air;
+            }
+
             if (tile.item != null and tile.item.? == .bomb and tile.item.?.bomb.armed) {
                 tile.item.?.bomb.timer -= 1;
 
                 if (tile.item.?.bomb.timer < 0) {
-                    // BOOM
+                    // #BOOM
                     tile.item = null;
 
                     var bx: i32 = tile.pos.x - 1;
                     while (bx <= tile.pos.x + 1) : (bx += 1) {
                         var by: i32 = tile.pos.y - 1;
                         while (by <= tile.pos.y + 1) : (by += 1) {
-                            world[xy2i(bx, by)].tileType = .Air;
+                            world[xy2i(bx, by)].item = null;
+                            world[xy2i(bx, by)].tileType = .ExplosionSmoke;
                         }
                     }
                 }
