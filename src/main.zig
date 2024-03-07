@@ -64,11 +64,16 @@ const Bomb = struct {
     armed: bool = false,
 };
 
+const Bucket = struct {
+    waterAmount: i32 = 0,
+};
+
 const Item = union(enum) {
     key: Key,
     door: Door,
     info: Info,
     bomb: Bomb,
+    bucket: Bucket,
 
     fn getSymbol(self: Item) u8 {
         return switch (self) {
@@ -76,6 +81,7 @@ const Item = union(enum) {
             .door => if (self.door.isOpen) '\'' else 'D',
             .info => '?',
             .bomb => |bomb| if (bomb.armed) @intCast(48 + bomb.timer) else '=',
+            .bucket => 'U',
         };
     }
 
@@ -85,6 +91,7 @@ const Item = union(enum) {
             .door => |door| try stdout.print("{s} door", .{@tagName(door.keyType)}),
             .info => {},
             .bomb => try stdout.print("bomb", .{}),
+            .bucket => try stdout.print("bucket", .{}),
         }
     }
 };
@@ -154,6 +161,8 @@ pub fn main() !void {
     world[xy2i(5, 6)].item = .{ .bomb = .{} };
     world[xy2i(6, 6)].item = .{ .bomb = .{} };
     world[xy2i(7, 6)].item = .{ .bomb = .{} };
+
+    world[xy2i(12, 6)].item = .{ .bucket = .{} };
 
     // for (0..6) |i| {
     //     world[toIndexXY(@intCast(i + 10), 6)].tileType = .Wall;
