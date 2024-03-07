@@ -119,6 +119,8 @@ pub fn main() !void {
 
     var heldItem: ?Item = null;
 
+    var lastTyped: u8 = ' ';
+
     // #LOOP
     while (true) {
         //@memset(&screen, '.');
@@ -134,7 +136,7 @@ pub fn main() !void {
 
         screen[toIndex(player.pos)] = '@';
 
-        try stdout.print("\x1B[2J\x1B[H", .{});
+        try stdout.print("\x1B[2J\x1B[3J\x1B[H", .{});
 
         for (0..height) |y| {
             try stdout.print("\n", .{});
@@ -142,8 +144,6 @@ pub fn main() !void {
                 try stdout.print("{c}", .{screen[y * width + x]});
             }
         }
-
-        try stdout.print("\n\nplayer: {}, {}", .{ player.pos.x, player.pos.y });
 
         const playerTile = world[toIndex(player.pos)];
 
@@ -187,6 +187,11 @@ pub fn main() !void {
             }
         }
 
+        // Debug
+        try stdout.print("\n\nDebug:", .{});
+        try stdout.print("\n- player pos: {}, {}", .{ player.pos.x, player.pos.y });
+        try stdout.print("\n- last typed: code: '{}' char: '{c}'", .{ lastTyped, lastTyped });
+
         try bw.flush();
 
         const input: i32 = c.getch();
@@ -221,9 +226,11 @@ pub fn main() !void {
                     }
                 }
             },
-            'q' => break,
+            27 => break, // esc
             else => {},
         }
+
+        lastTyped = @intCast(input);
 
         const targetCoord = Coord{
             .x = player.pos.x + desiredMove.x,
