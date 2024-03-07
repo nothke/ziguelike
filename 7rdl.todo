@@ -35,8 +35,11 @@ Game:
     ✔ unlocking doors with keys @done(24-03-07 00:40)
     ✔ Make tile have an optional item @done(24-03-07 01:10)
     ✔ Display messages with ? item @done(24-03-07 01:10)
-    ☐ Update zig with a potential fix
+    ✔ Update zig with a potential fix @done(24-03-07 01:21)
+    --- End of stream 3 - day 2 ---
+    ☐ Make sure not to drop items on top of other items
     ☐ 2d scrolling world
+    ☐ Make some bombs
     ☐ NPCs
     ☐ Procedural rooms
     ☐ Goal..?

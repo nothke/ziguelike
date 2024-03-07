@@ -9,7 +9,7 @@
             "command": "zig",
             "args": [
                 "build",
-                "-freference-trace",
+                //"-freference-trace",
                 //"-Dtarget=x86_64-windows-gnu",
                 "run"
             ],
