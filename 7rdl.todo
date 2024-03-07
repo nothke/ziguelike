@@ -32,7 +32,9 @@ Game:
     ✔ Inventory to store ~~items~~ an item @done(24-03-07 00:04)
     ✔ Take items @done(24-03-07 00:04)
     ✔ Dropping items @done(24-03-07 00:04)
-    ☐ unlocking doors with keys
+    ✔ unlocking doors with keys @done(24-03-07 00:40)
+    ☐ Make tile have an optional item
+    ☐ Display messages with ? item
     ☐ NPCs
     ☐ 2d scrolling world
     ☐ Procedural rooms

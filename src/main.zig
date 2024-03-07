@@ -22,7 +22,7 @@ const TileType = enum {
 const Tile = struct {
     pos: Coord = .{ .x = 0, .y = 0 },
     tileType: TileType = .Air,
-    item: Item = .empty,
+    item: ?Item = null,
 };
 
 const Key = struct {
@@ -35,7 +35,6 @@ const Door = struct {
 };
 
 const Item = union(enum) {
-    empty,
     key: Key,
     door: Door,
 
@@ -43,7 +42,6 @@ const Item = union(enum) {
         return switch (self) {
             .key => 'f',
             .door => if (self.door.isOpen) '\'' else 'D',
-            else => unreachable,
         };
     }
 };
@@ -119,8 +117,8 @@ pub fn main() !void {
         for (world, &screen) |tile, *pixel| {
             pixel.* = if (tile.tileType == .Air) '.' else '#';
 
-            if (tile.item != .empty) {
-                pixel.* = tile.item.getSymbol();
+            if (tile.item) |item| {
+                pixel.* = item.getSymbol();
             }
         }
 
@@ -141,11 +139,11 @@ pub fn main() !void {
 
         var itemToTake: ?Item = null;
 
-        if (playerTile.item != .empty) {
-            switch (playerTile.item) {
+        if (playerTile.item) |playerTileItem| {
+            switch (playerTileItem) {
                 .key => |key| {
                     try stdout.print("\nkey: {}, press space to take", .{key.keyType});
-                    itemToTake = playerTile.item;
+                    itemToTake = playerTileItem;
                 },
                 else => {},
             }
@@ -159,13 +157,20 @@ pub fn main() !void {
 
         if (heldItem) |item| {
             if (item == .key) {
-                for (@intCast(player.pos.x - 1)..@intCast(player.pos.x + 2)) |x| {
-                    const tile = &world[toIndexXY(@intCast(x), player.pos.y)];
-                    if (tile.item == .door) {
-                        doorTile = tile;
-                        //doorToUnlock = tile.item.door;
-                        try stdout.print("\nCan unlock door\n", .{});
-                        break;
+                var y: i32 = player.pos.y - 1;
+                while (y <= player.pos.y + 1) : (y += 1) {
+                    var x: i32 = player.pos.x - 1;
+                    while (x <= player.pos.x + 1) : (x += 1) {
+                        const tile = &world[toIndexXY(x, y)];
+
+                        if (tile.item) |tileItem| {
+                            if (tileItem == .door) {
+                                doorTile = tile;
+                                //doorToUnlock = tile.item.door;
+                                try stdout.print("\nCan unlock door\n", .{});
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -188,11 +193,12 @@ pub fn main() !void {
                 if (itemToTake) |item| {
                     if (heldItem == null) {
                         heldItem = item;
-                        world[toIndex(player.pos)].item = .empty;
+                        world[toIndex(player.pos)].item = null;
                     }
                 } else {
                     if (doorTile) |doorTilePtr| {
-                        doorTilePtr.item.door.isOpen = !doorTilePtr.item.door.isOpen;
+                        const door = &doorTilePtr.item.?.door;
+                        door.isOpen = !door.isOpen;
                     }
                 }
             },
@@ -214,7 +220,7 @@ pub fn main() !void {
         };
 
         const targetTile = &world[toIndex(targetCoord)];
-        const doorExistsAndIsClosed = targetTile.item == .door and !targetTile.item.door.isOpen;
+        const doorExistsAndIsClosed = if (targetTile.item) |item| (item == .door and !item.door.isOpen) else false;
 
         if (targetTile.tileType == .Air and !doorExistsAndIsClosed) {
             player.pos = targetCoord;
