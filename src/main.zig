@@ -75,12 +75,15 @@ const Bucket = struct {
     waterAmount: i32 = 0,
 };
 
+const Cement = struct {};
+
 const Item = union(enum) {
     key: Key,
     door: Door,
     info: Info,
     bomb: Bomb,
     bucket: Bucket,
+    cement: Cement,
 
     fn getSymbol(self: Item) u8 {
         return switch (self) {
@@ -89,6 +92,7 @@ const Item = union(enum) {
             .info => '?',
             .bomb => |bomb| if (bomb.armed) @intCast(48 + bomb.timer) else '=',
             .bucket => 'U',
+            .cement => 'c',
         };
     }
 
@@ -98,7 +102,8 @@ const Item = union(enum) {
             .door => |door| try stdout.print("{s} door", .{@tagName(door.keyType)}),
             .info => {},
             .bomb => try stdout.print("bomb", .{}),
-            .bucket => try stdout.print("bucket", .{}),
+            .bucket => |bucket| try stdout.print("bucket {}/5", .{bucket.waterAmount}),
+            .cement => try stdout.print("cement", .{}),
         }
     }
 };
@@ -177,6 +182,9 @@ pub fn main() !void {
     world[xy2i(7, 6)].item = .{ .bomb = .{} };
 
     world[xy2i(12, 6)].item = .{ .bucket = .{} };
+    const emptyBucket = Item{ .bucket = .{} };
+    placeRect(&world, Tile{ .item = emptyBucket }, 12, 4, 4, 1);
+    placeRect(&world, Tile{ .item = .{ .cement = .{} } }, 12, 3, 4, 1);
 
     // for (0..6) |i| {
     //     world[toIndexXY(@intCast(i + 10), 6)].tileType = .Wall;
@@ -267,9 +275,11 @@ pub fn main() !void {
                     try stdout.print("\nStanding on: ", .{});
 
                     try item.print(stdout);
-                    itemToTake = playerTileItem;
 
-                    try stdout.print(". Press space to take", .{});
+                    if (heldItem == null) {
+                        itemToTake = playerTileItem;
+                        try stdout.print(". Press space to take", .{});
+                    }
                 },
             }
         }
@@ -280,28 +290,39 @@ pub fn main() !void {
 
             if (playerTile.item == null) {
                 try stdout.print(". Press E to drop", .{});
+            } else if (item == .bucket and playerTile.item.? == .cement) {
+                try stdout.print("\nPress space to build wall", .{});
             }
         }
 
         var doorTile: ?*Tile = null;
+        var closeToWater = false;
 
-        if (heldItem) |item| {
-            if (item == .key) {
-                var y: i32 = player.pos.y - 1;
-                while (y <= player.pos.y + 1) : (y += 1) {
-                    var x: i32 = player.pos.x - 1;
-                    while (x <= player.pos.x + 1) : (x += 1) {
-                        const tile = &world[xy2i(x, y)];
+        var y: i32 = player.pos.y - 1;
+        while (y <= player.pos.y + 1) : (y += 1) {
+            var x: i32 = player.pos.x - 1;
+            while (x <= player.pos.x + 1) : (x += 1) {
+                const tile = &world[xy2i(x, y)];
 
-                        if (tile.item) |tileItem| {
-                            if (tileItem == .door) {
-                                doorTile = tile;
-                                const lockText = if (tileItem.door.isOpen) "lock" else "unlock";
-                                try stdout.print("\nSpace to {sd} door\n", .{lockText});
-                                break;
-                            }
+                // Can open door if holding key
+                if (heldItem != null and heldItem.? == .key) {
+                    if (tile.item) |tileItem| {
+                        if (tileItem == .door) {
+                            doorTile = tile;
+                            const lockText = if (tileItem.door.isOpen) "lock" else "unlock";
+                            try stdout.print("\nSpace to {sd} door\n", .{lockText});
+                            break;
                         }
                     }
+                }
+
+                if (tile.tileType == .Water and !closeToWater) {
+                    try stdout.print("\nClose to water", .{});
+
+                    if (heldItem != null and heldItem.? == .bucket)
+                        try stdout.print("\nSpace to fill up bucket with water", .{});
+
+                    closeToWater = true;
                 }
             }
         }
@@ -358,12 +379,20 @@ pub fn main() !void {
                         world[c2i(player.pos)].item = null;
                     }
                 } else {
-                    if (heldItem) |item| {
-                        if (item == .bomb and playerTile.isClear()) {
+                    if (heldItem != null) {
+                        if (heldItem.? == .bomb and playerTile.isClear()) {
                             playerTile.item = heldItem;
                             heldItem = null;
 
                             playerTile.item.?.bomb.armed = true;
+                        } else if (heldItem.? == .bucket and closeToWater) {
+                            // Pick up water
+                            heldItem.?.bucket.waterAmount = 5;
+                        } else if (playerTile.item != null and playerTile.item.? == .cement and heldItem.? == .bucket and heldItem.?.bucket.waterAmount > 0) {
+                            // Solidify cement into a wall
+                            playerTile.tileType = .Wall;
+                            playerTile.item = null;
+                            heldItem.?.bucket.waterAmount -= 1;
                         }
                     }
                     if (doorTile) |doorTilePtr| { // Unlocking the door
