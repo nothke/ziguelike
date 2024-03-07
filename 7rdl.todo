@@ -33,9 +33,10 @@ Game:
     ✔ Take items @done(24-03-07 00:04)
     ✔ Dropping items @done(24-03-07 00:04)
     ✔ unlocking doors with keys @done(24-03-07 00:40)
-    ☐ Make tile have an optional item
-    ☐ Display messages with ? item
-    ☐ NPCs
+    ✔ Make tile have an optional item @done(24-03-07 01:10)
+    ✔ Display messages with ? item @done(24-03-07 01:10)
+    ☐ Update zig with a potential fix
     ☐ 2d scrolling world
+    ☐ NPCs
     ☐ Procedural rooms
     ☐ Goal..?

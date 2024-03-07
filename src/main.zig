@@ -34,14 +34,20 @@ const Door = struct {
     isOpen: bool,
 };
 
+const Info = struct {
+    message: []const u8,
+};
+
 const Item = union(enum) {
     key: Key,
     door: Door,
+    info: Info,
 
     fn getSymbol(self: Item) u8 {
         return switch (self) {
             .key => 'f',
             .door => if (self.door.isOpen) '\'' else 'D',
+            .info => '?',
         };
     }
 };
@@ -99,6 +105,10 @@ pub fn main() !void {
     world[toIndexXY(3, 2)].item = .{ .key = .{ .keyType = 1 } };
     world[toIndexXY(9, 5)].item = .{ .door = .{ .keyType = 1, .isOpen = false } };
 
+    world[toIndexXY(2, 3)].item = .{ .info = .{ .message = "Hello world!" } };
+    world[toIndexXY(2, 4)].item = .{ .info = .{ .message = "Welcome to the dungeon!!" } };
+    world[toIndexXY(2, 6)].item = .{ .info = .{ .message = "This is a very scary, very scary dungeon!!!" } };
+
     // for (0..6) |i| {
     //     world[toIndexXY(@intCast(i + 10), 6)].tileType = .Wall;
     // }
@@ -145,6 +155,7 @@ pub fn main() !void {
                     try stdout.print("\nkey: {}, press space to take", .{key.keyType});
                     itemToTake = playerTileItem;
                 },
+                .info => |info| try stdout.print("\nMessage: {s}", .{info.message}),
                 else => {},
             }
         }
