@@ -22,6 +22,7 @@ const TileType = enum {
     Air,
     Wall,
     ExplosionSmoke,
+    Water,
 };
 
 const Tile = struct {
@@ -31,6 +32,12 @@ const Tile = struct {
 
     fn isClear(self: Tile) bool {
         return self.item == null and self.tileType == .Air;
+    }
+
+    /// Copies everything from other to self except position
+    fn copyData(self: *Tile, other: Tile) void {
+        self.tileType = other.tileType;
+        self.item = other.item;
     }
 };
 
@@ -117,14 +124,19 @@ fn i2c(i: u32) Coord {
     };
 }
 
-fn placeRoom(world: []Tile, x: i32, y: i32, w: i32, h: i32) void {
+fn placeRect(world: []Tile, tile: Tile, x: i32, y: i32, w: i32, h: i32) void {
     for (0..@intCast(w)) |xi| {
         for (0..@intCast(h)) |yi| {
             const xi32: i32 = @intCast(xi);
             const yi32: i32 = @intCast(yi);
-            world[xy2i(x + xi32, y + yi32)].tileType = .Air;
+            world[xy2i(x + xi32, y + yi32)].copyData(tile);
         }
     }
+}
+
+fn placeRoom(world: []Tile, x: i32, y: i32, w: i32, h: i32) void {
+    const tile = .{ .tileType = .Air };
+    placeRect(world, tile, x, y, w, h);
 }
 
 pub fn main() !void {
@@ -147,6 +159,8 @@ pub fn main() !void {
     placeRoom(&world, 5, 5, 5, 1);
     placeRoom(&world, 23, 4, 50, 50);
     placeRoom(&world, 22, 4, 1, 1);
+
+    placeRect(&world, Tile{ .tileType = .Water }, 10, 7, 10, 10);
 
     world[xy2i(5, 5)].tileType = .Wall;
 
@@ -215,6 +229,7 @@ pub fn main() !void {
                     .Air => '.',
                     .Wall => '#',
                     .ExplosionSmoke => 'x',
+                    .Water => '~',
                 };
 
                 if (tile.item) |item| {
