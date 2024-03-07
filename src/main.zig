@@ -280,6 +280,25 @@ pub fn main() !void {
 
         const input: i32 = c.getch();
 
+        for (&world) |*tile| {
+            if (tile.item != null and tile.item.? == .bomb and tile.item.?.bomb.armed) {
+                tile.item.?.bomb.timer -= 1;
+
+                if (tile.item.?.bomb.timer < 0) {
+                    // BOOM
+                    tile.item = null;
+
+                    var bx: i32 = tile.pos.x - 1;
+                    while (bx <= tile.pos.x + 1) : (bx += 1) {
+                        var by: i32 = tile.pos.y - 1;
+                        while (by <= tile.pos.y + 1) : (by += 1) {
+                            world[xy2i(bx, by)].tileType = .Air;
+                        }
+                    }
+                }
+            }
+        }
+
         var desiredMove = zero;
 
         switch (input) {
