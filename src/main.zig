@@ -102,7 +102,7 @@ pub fn main() !void {
     world[toIndexXY(5, 5)].tileType = .Wall;
 
     world[toIndexXY(2, 2)].item = .{ .key = .{ .keyType = 1 } };
-    world[toIndexXY(3, 2)].item = .{ .key = .{ .keyType = 1 } };
+    world[toIndexXY(5, 7)].item = .{ .key = .{ .keyType = 1 } };
     world[toIndexXY(9, 5)].item = .{ .door = .{ .keyType = 1, .isOpen = false } };
 
     world[toIndexXY(2, 3)].item = .{ .info = .{ .message = "Hello world!" } };
@@ -113,9 +113,7 @@ pub fn main() !void {
     //     world[toIndexXY(@intCast(i + 10), 6)].tileType = .Wall;
     // }
 
-    var player = Player{
-        .pos = .{ .x = 3, .y = 3 },
-    };
+    var player = Player{ .pos = .{ .x = 3, .y = 3 } };
 
     var heldItem: ?Item = null;
 
@@ -136,6 +134,7 @@ pub fn main() !void {
 
         screen[toIndex(player.pos)] = '@';
 
+        // Clear screen
         try stdout.print("\x1B[2J\x1B[3J\x1B[H", .{});
 
         for (0..height) |y| {
@@ -144,6 +143,8 @@ pub fn main() !void {
                 try stdout.print("{c}", .{screen[y * width + x]});
             }
         }
+
+        try stdout.print("\n", .{});
 
         const playerTile = world[toIndex(player.pos)];
 
@@ -178,7 +179,8 @@ pub fn main() !void {
                             if (tileItem == .door) {
                                 doorTile = tile;
                                 //doorToUnlock = tile.item.door;
-                                try stdout.print("\nCan unlock door\n", .{});
+                                const lockText = if (tileItem.door.isOpen) "lock" else "unlock";
+                                try stdout.print("\nSpace to {sd} door\n", .{lockText});
                                 break;
                             }
                         }
