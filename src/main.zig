@@ -6,6 +6,10 @@ const c = @cImport({
 const Coord = struct {
     x: i32,
     y: i32,
+
+    fn equals(a: Coord, b: Coord) bool {
+        return a.x == b.x and a.y == b.y;
+    }
 };
 
 const zero = Coord{ .x = 0, .y = 0 };
@@ -79,21 +83,24 @@ const Item = union(enum) {
     }
 };
 
-const width: i32 = 30;
-const height: i32 = 10;
+const screenWidth: i32 = 30;
+const screenHeight: i32 = 10;
 
-fn toIndex(pos: Coord) u32 {
-    return @intCast(pos.y * width + pos.x);
+const worldWidth: i32 = 256;
+const worldHeight: i32 = 256;
+
+fn c2i(pos: Coord) u32 {
+    return @intCast(pos.y * worldWidth + pos.x);
 }
 
-fn toIndexXY(x: i32, y: i32) u32 {
-    return @intCast(y * width + x);
+fn xy2i(x: i32, y: i32) u32 {
+    return @intCast(y * worldWidth + x);
 }
 
-fn toCoord(i: u32) Coord {
+fn i2c(i: u32) Coord {
     return Coord{
-        .x = @intCast(i % width),
-        .y = @intCast(@divFloor(i, width)),
+        .x = @intCast(i % worldWidth),
+        .y = @intCast(@divFloor(i, worldWidth)),
     };
 }
 
@@ -102,7 +109,7 @@ fn placeRoom(world: []Tile, x: i32, y: i32, w: i32, h: i32) void {
         for (0..@intCast(h)) |yi| {
             const xi32: i32 = @intCast(xi);
             const yi32: i32 = @intCast(yi);
-            world[toIndexXY(x + xi32, y + yi32)].tileType = .Air;
+            world[xy2i(x + xi32, y + yi32)].tileType = .Air;
         }
     }
 }
@@ -112,30 +119,32 @@ pub fn main() !void {
     var bw = std.io.bufferedWriter(stdout_file);
     const stdout = bw.writer();
 
-    var screen = [_]u8{'.'} ** (width * height);
+    var screen = [_]u8{'.'} ** (screenWidth * screenHeight);
     screen[0] = '#';
 
-    var world = [_]Tile{.{ .tileType = .Wall }} ** (width * height);
+    var world = [_]Tile{.{ .tileType = .Wall }} ** (worldWidth * worldHeight);
 
     for (&world, 0..world.len) |*tile, i| {
-        tile.pos = toCoord(@intCast(i));
+        tile.pos = i2c(@intCast(i));
         //try stdout.print("index: {}, coord x: {}, y: {}\n", .{ i, tile.pos.x, tile.pos.y });
     }
 
     placeRoom(&world, 2, 2, 6, 6);
     placeRoom(&world, 10, 2, 12, 6);
     placeRoom(&world, 5, 5, 5, 1);
+    placeRoom(&world, 23, 4, 50, 50);
+    placeRoom(&world, 22, 4, 1, 1);
 
-    world[toIndexXY(5, 5)].tileType = .Wall;
+    world[xy2i(5, 5)].tileType = .Wall;
 
-    world[toIndexXY(2, 2)].item = .{ .key = .{ .keyType = .Red } };
-    world[toIndexXY(5, 7)].item = .{ .key = .{ .keyType = .Red } };
-    world[toIndexXY(9, 5)].item = .{ .door = .{ .keyType = .Red, .isOpen = false } };
+    world[xy2i(2, 2)].item = .{ .key = .{ .keyType = .Red } };
+    world[xy2i(5, 7)].item = .{ .key = .{ .keyType = .Red } };
+    world[xy2i(9, 5)].item = .{ .door = .{ .keyType = .Red, .isOpen = false } };
 
-    world[toIndexXY(2, 3)].item = .{ .info = .{ .message = "Hello world!" } };
-    world[toIndexXY(2, 4)].item = .{ .info = .{ .message = "Welcome to the dungeon!!" } };
-    world[toIndexXY(2, 6)].item = .{ .info = .{ .message = "This is a very scary, very scary dungeon!!!" } };
-    world[toIndexXY(5, 6)].item = .{ .bomb = .{} };
+    world[xy2i(2, 3)].item = .{ .info = .{ .message = "Hello world!" } };
+    world[xy2i(2, 4)].item = .{ .info = .{ .message = "Welcome to the dungeon!!" } };
+    world[xy2i(2, 6)].item = .{ .info = .{ .message = "This is a very scary, very scary dungeon!!!" } };
+    world[xy2i(5, 6)].item = .{ .bomb = .{} };
 
     // for (0..6) |i| {
     //     world[toIndexXY(@intCast(i + 10), 6)].tileType = .Wall;
@@ -151,30 +160,61 @@ pub fn main() !void {
     while (true) {
         //@memset(&screen, '.');
 
-        // Drawing
-        for (world, &screen) |tile, *pixel| {
-            pixel.* = if (tile.tileType == .Air) '.' else '#';
+        var screenStart = Coord{
+            .x = player.pos.x - @divFloor(screenWidth, 2),
+            .y = player.pos.y - @divFloor(screenHeight, 2),
+        };
 
-            if (tile.item) |item| {
-                pixel.* = item.getSymbol();
-            }
+        const maxScreenX = worldWidth - screenWidth;
+        const maxScreenY = worldHeight - screenHeight;
+
+        if (screenStart.x < 0) {
+            screenStart.x = 0;
+        } else if (screenStart.x > maxScreenX) {
+            screenStart.y = maxScreenX;
         }
 
-        screen[toIndex(player.pos)] = '@';
+        if (screenStart.y < 0) {
+            screenStart.y = 0;
+        } else if (screenStart.y > maxScreenY) {
+            screenStart.y = maxScreenY;
+        }
+
+        // Filling screen buffer
+        var sy: i32 = 0;
+        while (sy < screenHeight) : (sy += 1) {
+            var sx: i32 = 0;
+            while (sx < screenWidth) : (sx += 1) {
+                const worldCoord = Coord{ .x = sx + screenStart.x, .y = sy + screenStart.y };
+
+                const tile = &world[c2i(worldCoord)];
+                const pixel = &screen[@intCast(sy * screenWidth + sx)];
+
+                pixel.* = if (tile.tileType == .Air) '.' else '#';
+
+                if (tile.item) |item| {
+                    pixel.* = item.getSymbol();
+                }
+
+                if (worldCoord.equals(player.pos))
+                    pixel.* = '@';
+            }
+        }
 
         // Clear screen
         try stdout.print("\x1B[2J\x1B[3J\x1B[H", .{});
 
-        for (0..height) |y| {
+        // Draw the world
+        for (0..screenHeight) |y| {
             try stdout.print("\n", .{});
-            for (0..width) |x| {
-                try stdout.print("{c}", .{screen[y * width + x]});
+            for (0..screenWidth) |x| {
+                try stdout.print("{c}", .{screen[y * screenWidth + x]});
             }
         }
 
         try stdout.print("\n", .{});
 
-        const playerTile = world[toIndex(player.pos)];
+        const playerTile = world[c2i(player.pos)];
 
         var itemToTake: ?Item = null;
 
@@ -211,7 +251,7 @@ pub fn main() !void {
                 while (y <= player.pos.y + 1) : (y += 1) {
                     var x: i32 = player.pos.x - 1;
                     while (x <= player.pos.x + 1) : (x += 1) {
-                        const tile = &world[toIndexXY(x, y)];
+                        const tile = &world[xy2i(x, y)];
 
                         if (tile.item) |tileItem| {
                             if (tileItem == .door) {
@@ -248,7 +288,7 @@ pub fn main() !void {
                 if (itemToTake) |item| {
                     if (heldItem == null) {
                         heldItem = item;
-                        world[toIndex(player.pos)].item = null;
+                        world[c2i(player.pos)].item = null;
                     }
                 } else {
                     if (doorTile) |doorTilePtr| {
@@ -260,7 +300,7 @@ pub fn main() !void {
             'e' => {
                 if (heldItem) |item| {
                     if (playerTile.item == null) {
-                        world[toIndex(player.pos)].item = item;
+                        world[c2i(player.pos)].item = item;
                         heldItem = null;
                     }
                 }
@@ -276,7 +316,7 @@ pub fn main() !void {
             .y = player.pos.y + desiredMove.y,
         };
 
-        const targetTile = &world[toIndex(targetCoord)];
+        const targetTile = &world[c2i(targetCoord)];
         const doorExistsAndIsClosed = if (targetTile.item) |item| (item == .door and !item.door.isOpen) else false;
 
         if (targetTile.tileType == .Air and !doorExistsAndIsClosed) {
