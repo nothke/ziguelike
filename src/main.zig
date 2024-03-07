@@ -27,6 +27,10 @@ const Tile = struct {
     pos: Coord = .{ .x = 0, .y = 0 },
     tileType: TileType = .Air,
     item: ?Item = null,
+
+    fn isClear(self: Tile) bool {
+        return self.item == null and self.tileType == .Air;
+    }
 };
 
 // -- Items --
@@ -55,7 +59,8 @@ const Info = struct {
 };
 
 const Bomb = struct {
-    timer: i32 = 5,
+    timer: i8 = 5,
+    armed: bool = false,
 };
 
 const Item = union(enum) {
@@ -69,7 +74,7 @@ const Item = union(enum) {
             .key => 'f',
             .door => if (self.door.isOpen) '\'' else 'D',
             .info => '?',
-            .bomb => '=',
+            .bomb => |bomb| if (bomb.armed) @intCast(48 + bomb.timer) else '=',
         };
     }
 
@@ -214,7 +219,7 @@ pub fn main() !void {
 
         try stdout.print("\n", .{});
 
-        const playerTile = world[c2i(player.pos)];
+        const playerTile = &world[c2i(player.pos)];
 
         var itemToTake: ?Item = null;
 
@@ -275,8 +280,6 @@ pub fn main() !void {
 
         const input: i32 = c.getch();
 
-        //try stdout.print("\n ------------------------- \n", .{});
-
         var desiredMove = zero;
 
         switch (input) {
@@ -285,13 +288,21 @@ pub fn main() !void {
             'w' => desiredMove.y = -1,
             's' => desiredMove.y = 1,
             ' ' => {
-                if (itemToTake) |item| {
+                if (itemToTake) |item| { // Taking an item
                     if (heldItem == null) {
                         heldItem = item;
                         world[c2i(player.pos)].item = null;
                     }
                 } else {
-                    if (doorTile) |doorTilePtr| {
+                    if (heldItem) |item| {
+                        if (item == .bomb and playerTile.isClear()) {
+                            playerTile.item = heldItem;
+                            heldItem = null;
+
+                            playerTile.item.?.bomb.armed = true;
+                        }
+                    }
+                    if (doorTile) |doorTilePtr| { // Unlocking the door
                         const door = &doorTilePtr.item.?.door;
                         door.isOpen = !door.isOpen;
                     }

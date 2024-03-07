@@ -41,7 +41,7 @@ Game:
         ✔ Holding item: red key - 'e' to drop @done(24-03-07 17:51)
         ✔ Standing on: red key - 'space' to take @done(24-03-07 17:51)
     ✔ Make sure not to drop items on top of other items @done(24-03-07 17:53)
-    ☐ 2d scrolling world
+    ✔ 2d scrolling world @done(24-03-07 18:26)
     ☐ Make some bombs that destroy walls
     ☐ Make some plants that can grow
     ☐ Add a bucket with which you can pick up water
