@@ -158,14 +158,13 @@ pub fn main() !void {
     var bw = std.io.bufferedWriter(stdout_file);
     const stdout = bw.writer();
 
-    var screen = [_]u8{'.'} ** (screenWidth * screenHeight);
-    screen[0] = '#';
+    var screen: [screenWidth * screenHeight]u8 = undefined;
 
-    var world = [_]Tile{.{ .tileType = .Wall }} ** (worldWidth * worldHeight);
+    var world: [worldWidth * worldHeight]Tile = undefined;
+    @memset(&world, Tile{ .tileType = .Wall });
 
     for (&world, 0..world.len) |*tile, i| {
         tile.pos = i2c(@intCast(i));
-        //try stdout.print("index: {}, coord x: {}, y: {}\n", .{ i, tile.pos.x, tile.pos.y });
     }
 
     placeRoom(&world, 2, 2, 6, 6);
