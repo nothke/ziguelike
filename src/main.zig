@@ -114,14 +114,17 @@ const screenHeight: i32 = 15;
 const worldWidth: i32 = 256;
 const worldHeight: i32 = 256;
 
+/// Converts world coord to world index
 fn c2i(pos: Coord) u32 {
     return @intCast(pos.y * worldWidth + pos.x);
 }
 
+/// Converts world XY to world index
 fn xy2i(x: i32, y: i32) u32 {
     return @intCast(y * worldWidth + x);
 }
 
+/// Converts index to world coord
 fn i2c(i: u32) Coord {
     return Coord{
         .x = @intCast(i % worldWidth),
