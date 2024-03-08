@@ -108,8 +108,8 @@ const Item = union(enum) {
     }
 };
 
-const screenWidth: i32 = 30;
-const screenHeight: i32 = 10;
+const screenWidth: i32 = 40;
+const screenHeight: i32 = 15;
 
 const worldWidth: i32 = 256;
 const worldHeight: i32 = 256;
@@ -144,6 +144,12 @@ fn placeRoom(world: []Tile, x: i32, y: i32, w: i32, h: i32) void {
     placeRect(world, tile, x, y, w, h);
 }
 
+fn drawAllChars(stdout: anytype) void {
+    for (0..255) |i| {
+        stdout.print("\n{}: {c}", .{ i, @as(u8, @intCast(i)) }) catch {};
+    }
+}
+
 pub fn main() !void {
     const stdout_file = std.io.getStdOut().writer();
     var bw = std.io.bufferedWriter(stdout_file);
@@ -167,15 +173,17 @@ pub fn main() !void {
 
     placeRect(&world, Tile{ .tileType = .Water }, 10, 7, 10, 10);
 
+    var player = Player{ .pos = .{ .x = 3, .y = 3 } };
+
     world[xy2i(5, 5)].tileType = .Wall;
 
     world[xy2i(2, 2)].item = .{ .key = .{ .keyType = .Red } };
     world[xy2i(5, 7)].item = .{ .key = .{ .keyType = .Red } };
     world[xy2i(9, 5)].item = .{ .door = .{ .keyType = .Red, .isOpen = false } };
 
-    world[xy2i(2, 3)].item = .{ .info = .{ .message = "Hello world!" } };
+    world[c2i(player.pos)].item = .{ .info = .{ .message = "Use WASD to move" } };
     world[xy2i(2, 4)].item = .{ .info = .{ .message = "Welcome to the dungeon!!" } };
-    world[xy2i(2, 6)].item = .{ .info = .{ .message = "This is a very scary, very scary dungeon!!!" } };
+    world[xy2i(2, 6)].item = .{ .info = .{ .message = "How do you feel?" } };
 
     world[xy2i(5, 6)].item = .{ .bomb = .{} };
     world[xy2i(6, 6)].item = .{ .bomb = .{} };
@@ -189,8 +197,6 @@ pub fn main() !void {
     // for (0..6) |i| {
     //     world[toIndexXY(@intCast(i + 10), 6)].tileType = .Wall;
     // }
-
-    var player = Player{ .pos = .{ .x = 3, .y = 3 } };
 
     var heldItem: ?Item = null;
 
@@ -251,6 +257,8 @@ pub fn main() !void {
 
         // Clear screen
         try stdout.print("\x1B[2J\x1B[3J\x1B[H", .{});
+
+        //drawAllChars(stdout);
 
         // Draw the world
         for (0..screenHeight) |y| {
@@ -328,7 +336,7 @@ pub fn main() !void {
         }
 
         // Debug
-        try stdout.print("\n\nDebug:", .{});
+        try stdout.print("\n\n\n\n\n\nDebug:", .{});
         try stdout.print("\n- player pos: {}, {}", .{ player.pos.x, player.pos.y });
         try stdout.print("\n- last typed: code: '{}' char: '{c}'", .{ lastTyped, lastTyped });
 
@@ -409,7 +417,13 @@ pub fn main() !void {
                     }
                 }
             },
-            27 => break, // esc
+            27 => break, // escds
+            'p' => {
+                if (playerTile.isClear()) playerTile.item = .{ .cement = .{} };
+            },
+            'o' => {
+                if (playerTile.isClear()) playerTile.item = .{ .bomb = .{} };
+            },
             else => {},
         }
 

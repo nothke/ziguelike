@@ -43,9 +43,19 @@ Game:
     ✔ Make sure not to drop items on top of other items @done(24-03-07 17:53)
     ✔ 2d scrolling world @done(24-03-07 18:26)
     ✔ Make some bombs that destroy walls @done(24-03-07 18:54)
+    ✔ Add a bucket with which you can pick up water @done(24-03-07 20:33)
+    ✔ Add cement item @done(24-03-07 20:33)
+    ✔ Pouring water over cement should turn it into a wall @done(24-03-07 20:33)
+    -- End of stream 5 -- day 3 --
+    ☐ Make it so you can't drop on walls
+    ☐ Make sure you can pour on cemenet when close to water
     ☐ Make some plants that can grow
-    ☐ Add a bucket with which you can pick up water
-
+    ☐ Shovel - dig dirt to get seeds or cement
+    ☐ Put dirt into a bucket to become a flowerpot
+    ☐ 
+     /-----\
+    |  o    |
+     \-----/
     Later:
         ☐ NPCs
         ☐ Procedural rooms
