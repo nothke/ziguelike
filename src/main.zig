@@ -147,6 +147,17 @@ fn placeRect(world: []Tile, tile: Tile, x: i32, y: i32, w: i32, h: i32) void {
     }
 }
 
+fn placeCircle(world: []Tile, template: Tile, x: i32, y: i32, radius: f32) void {
+    for (world) |*tile| {
+        const dirx = tile.pos.x - x;
+        const diry = tile.pos.y - y;
+        const distance = @sqrt(@as(f32, @floatFromInt(dirx * dirx + diry * diry)));
+        if (distance < radius) {
+            tile.copyData(template);
+        }
+    }
+}
+
 fn placeRoom(world: []Tile, x: i32, y: i32, w: i32, h: i32) void {
     const tile = .{ .tileType = .Air };
     placeRect(world, tile, x, y, w, h);
@@ -180,7 +191,12 @@ pub fn main() !void {
 
     placeRect(&world, Tile{ .tileType = .Water }, 10, 7, 10, 10);
 
-    var player = Player{ .pos = .{ .x = 3, .y = 3 } };
+    var player = Player{ .pos = .{
+        .x = @divFloor(worldWidth, 2),
+        .y = @divFloor(worldHeight, 2),
+    } };
+
+    placeCircle(&world, .{ .tileType = .Air }, player.pos.x, player.pos.y, 10);
 
     world[xy2i(5, 5)].tileType = .Wall;
 
