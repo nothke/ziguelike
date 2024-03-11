@@ -198,6 +198,15 @@ pub fn main() !void {
 
     placeCircle(&world, .{ .tileType = .Air }, player.pos.x, player.pos.y, 10);
 
+    var prng = std.rand.DefaultPrng.init(42);
+    const random = prng.random();
+
+    for (0..300) |_| {
+        const x = random.intRangeLessThan(i32, 0, worldWidth);
+        const y = random.intRangeLessThan(i32, 0, worldHeight);
+        placeCircle(&world, .{ .tileType = .Air }, x, y, 10);
+    }
+
     world[xy2i(5, 5)].tileType = .Wall;
 
     world[xy2i(2, 2)].item = .{ .key = .{ .keyType = .Red } };

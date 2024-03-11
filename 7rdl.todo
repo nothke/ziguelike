@@ -54,8 +54,9 @@ Game:
     ✔ Add bedrock around the entire world @done(24-03-11 19:53)
     ✔ Make the bomb explode other bombs! @done(24-03-11 20:03)
     ✔ Remove "close to water" @done(24-03-11 20:04)
-    ☐ Move the player to the middle of the world
-    ☐ Dig a hole in world with circle
+    ✔ Move the player to the middle of the world @done(24-03-11 20:21)
+    ✔ Dig a hole in world with circle @done(24-03-11 20:21)
+    
     ☐ Add some caves with perlin noise
     ☐ Destroying walls should randomly spawn cement
     ☐ Make some plants that can grow
