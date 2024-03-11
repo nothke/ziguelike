@@ -23,6 +23,10 @@ const TileType = enum {
     Wall,
     ExplosionSmoke,
     Water,
+
+    fn destructible(self: TileType) bool {
+        return self != .Water;
+    }
 };
 
 const Tile = struct {
@@ -368,8 +372,11 @@ pub fn main() !void {
                     while (by <= tp.y + 1) : (by += 1) {
                         var bx: i32 = tp.x - 1;
                         while (bx <= tp.x + 1) : (bx += 1) {
-                            world[xy2i(bx, by)].item = null;
-                            world[xy2i(bx, by)].tileType = .ExplosionSmoke;
+                            var t = &world[xy2i(bx, by)];
+                            if (t.tileType.destructible()) {
+                                t.item = null;
+                                t.tileType = .ExplosionSmoke;
+                            }
                         }
                     }
                 }
