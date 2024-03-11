@@ -11,6 +11,8 @@
                 "build",
                 //"-freference-trace",
                 //"-Dtarget=x86_64-windows-gnu",
+                "--summary",
+                "all",
                 "run"
             ],
             "group": {

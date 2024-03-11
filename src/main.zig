@@ -298,9 +298,9 @@ pub fn main() !void {
             try stdout.print("\nHolding: ", .{});
             try item.print(stdout);
 
-            if (playerTile.item == null) {
+            if (playerTile.isClear()) {
                 try stdout.print(". Press E to drop", .{});
-            } else if (item == .bucket and playerTile.item.? == .cement) {
+            } else if (item == .bucket and playerTile.item != null and playerTile.item.? == .cement) {
                 try stdout.print("\nPress space to build wall", .{});
             }
         }
@@ -339,7 +339,7 @@ pub fn main() !void {
 
         // Debug
         try stdout.print("\n\n\n\n\n\nDebug:", .{});
-        try stdout.print("\n- player pos: {}, {}", .{ player.pos.x, player.pos.y });
+        try stdout.print("\n- player pos: {}, {}. tileType: {s}", .{ player.pos.x, player.pos.y, @tagName(playerTile.tileType) });
         try stdout.print("\n- last typed: code: '{}' char: '{c}'", .{ lastTyped, lastTyped });
 
         try bw.flush();
@@ -413,7 +413,7 @@ pub fn main() !void {
             },
             'e' => {
                 if (heldItem) |item| {
-                    if (playerTile.item == null) {
+                    if (playerTile.isClear()) {
                         world[c2i(player.pos)].item = item;
                         heldItem = null;
                     }

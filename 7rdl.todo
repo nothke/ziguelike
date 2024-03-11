@@ -47,16 +47,25 @@ Game:
     ✔ Add cement item @done(24-03-07 20:33)
     ✔ Pouring water over cement should turn it into a wall @done(24-03-07 20:33)
     -- End of stream 5 -- day 3 --
-    ☐ Make it so you can't drop on walls
-    ☐ Make sure you can pour on cemenet when close to water
+    ☐ Bug: Make it so you can't drop on walls
+    ☐ Bug: Make sure you can pour on cemenet when close to water
+    ☐ Bug: Bomb shouldn't destroy water
+    ☐ Remove "close to water"
+    ☐ Add bedrock - indestructible tile
+    ☐ Move the player to the middle of the world
+    ☐ Dig a hole in world with circle
+    ☐ Add some caves with perlin noise
+    ☐ Destroying walls should randomly spawn cement
     ☐ Make some plants that can grow
     ☐ Shovel - dig dirt to get seeds or cement
     ☐ Put dirt into a bucket to become a flowerpot
-    ☐ 
-     /-----\
-    |  o    |
-     \-----/
+    ☐ Put seeds into the bucket to become
+
     Later:
         ☐ NPCs
         ☐ Procedural rooms
+        ☐ Boat
+         /-----\
+        |  o    |
+         \-----/
         ☐ Goal..?
