@@ -47,7 +47,7 @@ Game:
     ✔ Add cement item @done(24-03-07 20:33)
     ✔ Pouring water over cement should turn it into a wall @done(24-03-07 20:33)
     -- End of stream 5 -- day 3 --
-    ☐ Bug: Make it so you can't drop on walls
+    ✔ Bug: Make it so you can't drop on walls @done(24-03-11 19:14)
     ☐ Bug: Make sure you can pour on cemenet when close to water
     ☐ Bug: Bomb shouldn't destroy water
     ☐ Remove "close to water"

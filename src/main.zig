@@ -307,6 +307,7 @@ pub fn main() !void {
 
         var doorTile: ?*Tile = null;
         var closeToWater = false;
+        const itemOnGroundCanBePouredWithBucket = playerTile.item != null and playerTile.item.? == .cement;
 
         var y: i32 = player.pos.y - 1;
         while (y <= player.pos.y + 1) : (y += 1) {
@@ -329,7 +330,7 @@ pub fn main() !void {
                 if (tile.tileType == .Water and !closeToWater) {
                     try stdout.print("\nClose to water", .{});
 
-                    if (heldItem != null and heldItem.? == .bucket)
+                    if (heldItem != null and heldItem.? == .bucket and !itemOnGroundCanBePouredWithBucket)
                         try stdout.print("\nSpace to fill up bucket with water", .{});
 
                     closeToWater = true;
@@ -395,7 +396,7 @@ pub fn main() !void {
                             heldItem = null;
 
                             playerTile.item.?.bomb.armed = true;
-                        } else if (heldItem.? == .bucket and closeToWater) {
+                        } else if (heldItem.? == .bucket and closeToWater and !itemOnGroundCanBePouredWithBucket) {
                             // Pick up water
                             heldItem.?.bucket.waterAmount = 5;
                         } else if (playerTile.item != null and playerTile.item.? == .cement and heldItem.? == .bucket and heldItem.?.bucket.waterAmount > 0) {
