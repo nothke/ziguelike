@@ -50,7 +50,8 @@ Game:
     ✔ Bug: Make it so you can't drop on walls @done(24-03-11 19:14)
     ✔ Bug: Make sure you can pour on cemenet when close to water @done(24-03-11 19:22)
     ✔ Bug: Bomb shouldn't destroy water @done(24-03-11 19:42)
-    ☐ Add bedrock - indestructible tile
+    ✔ Add bedrock - indestructible tile @done(24-03-11 19:53)
+    ✔ Add bedrock around the entire world @done(24-03-11 19:53)
     ☐ Make the bomb explode other bombs!
     ☐ Remove "close to water"
     ☐ Move the player to the middle of the world

@@ -180,7 +180,7 @@ pub fn main() !void {
 
     placeRect(&world, Tile{ .tileType = .Water }, 10, 7, 10, 10);
 
-    var player = Player{ .pos = .{ .x = worldWidth - 3, .y = worldHeight - 3 } };
+    var player = Player{ .pos = .{ .x = 3, .y = 3 } };
 
     world[xy2i(5, 5)].tileType = .Wall;
 
@@ -388,7 +388,14 @@ pub fn main() !void {
                         while (bx <= tp.x + 1) : (bx += 1) {
                             var t = &world[xy2i(bx, by)];
                             if (t.tileType.destructible()) {
-                                t.item = null;
+                                if (t.item != null) {
+                                    if (t.item.? == .bomb) {
+                                        t.item.?.bomb.armed = true;
+                                        t.item.?.bomb.timer = 1;
+                                    } else {
+                                        t.item = null;
+                                    }
+                                }
                                 t.tileType = .ExplosionSmoke;
                             }
                         }
