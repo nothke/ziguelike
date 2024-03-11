@@ -346,8 +346,6 @@ pub fn main() !void {
                 }
 
                 if (tile.tileType == .Water and !closeToWater) {
-                    try stdout.print("\nClose to water", .{});
-
                     if (heldItem != null and heldItem.? == .bucket and !itemOnGroundCanBePouredWithBucket)
                         try stdout.print("\nSpace to fill up bucket with water", .{});
 

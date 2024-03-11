@@ -52,8 +52,8 @@ Game:
     ✔ Bug: Bomb shouldn't destroy water @done(24-03-11 19:42)
     ✔ Add bedrock - indestructible tile @done(24-03-11 19:53)
     ✔ Add bedrock around the entire world @done(24-03-11 19:53)
-    ☐ Make the bomb explode other bombs!
-    ☐ Remove "close to water"
+    ✔ Make the bomb explode other bombs! @done(24-03-11 20:03)
+    ✔ Remove "close to water" @done(24-03-11 20:04)
     ☐ Move the player to the middle of the world
     ☐ Dig a hole in world with circle
     ☐ Add some caves with perlin noise
