@@ -48,10 +48,11 @@ Game:
     ✔ Pouring water over cement should turn it into a wall @done(24-03-07 20:33)
     -- End of stream 5 -- day 3 --
     ✔ Bug: Make it so you can't drop on walls @done(24-03-11 19:14)
-    ☐ Bug: Make sure you can pour on cemenet when close to water
-    ☐ Bug: Bomb shouldn't destroy water
-    ☐ Remove "close to water"
+    ✔ Bug: Make sure you can pour on cemenet when close to water @done(24-03-11 19:22)
+    ✔ Bug: Bomb shouldn't destroy water @done(24-03-11 19:42)
     ☐ Add bedrock - indestructible tile
+    ☐ Make the bomb explode other bombs!
+    ☐ Remove "close to water"
     ☐ Move the player to the middle of the world
     ☐ Dig a hole in world with circle
     ☐ Add some caves with perlin noise

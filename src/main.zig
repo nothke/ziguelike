@@ -23,9 +23,10 @@ const TileType = enum {
     Wall,
     ExplosionSmoke,
     Water,
+    Bedrock,
 
     fn destructible(self: TileType) bool {
-        return self != .Water;
+        return self != .Water and self != .Bedrock;
     }
 };
 
@@ -179,7 +180,7 @@ pub fn main() !void {
 
     placeRect(&world, Tile{ .tileType = .Water }, 10, 7, 10, 10);
 
-    var player = Player{ .pos = .{ .x = 3, .y = 3 } };
+    var player = Player{ .pos = .{ .x = worldWidth - 3, .y = worldHeight - 3 } };
 
     world[xy2i(5, 5)].tileType = .Wall;
 
@@ -199,6 +200,18 @@ pub fn main() !void {
     const emptyBucket = Item{ .bucket = .{} };
     placeRect(&world, Tile{ .item = emptyBucket }, 12, 4, 4, 1);
     placeRect(&world, Tile{ .item = .{ .cement = .{} } }, 12, 3, 4, 1);
+
+    for (0..worldWidth) |x| {
+        world[x].tileType = .Bedrock;
+        world[@intCast((worldHeight - 1) * worldWidth + @as(i32, @intCast(x)))].tileType = .Bedrock;
+    }
+
+    for (0..worldHeight) |y| {
+        world[y * worldWidth].tileType = .Bedrock;
+
+        if (y > 0)
+            world[y * worldWidth - 1].tileType = .Bedrock;
+    }
 
     // for (0..6) |i| {
     //     world[toIndexXY(@intCast(i + 10), 6)].tileType = .Wall;
@@ -223,7 +236,7 @@ pub fn main() !void {
         if (screenStart.x < 0) {
             screenStart.x = 0;
         } else if (screenStart.x > maxScreenX) {
-            screenStart.y = maxScreenX;
+            screenStart.x = maxScreenX;
         }
 
         if (screenStart.y < 0) {
@@ -250,6 +263,7 @@ pub fn main() !void {
                     .Wall => '#',
                     .ExplosionSmoke => 'x',
                     .Water => '~',
+                    .Bedrock => '%',
                 };
 
                 if (tile.item) |item| {
