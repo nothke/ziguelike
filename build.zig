@@ -15,6 +15,18 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(exe);
 
+    const exe_check = b.addExecutable(.{
+        .name = "YOUR_PROJECT",
+        .root_source_file = b.path("src/main.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    // Add all deps here just like your exe
+
+    const check = b.step("check", "Check if it compiles");
+    check.dependOn(&exe_check.step);
+
     const run_cmd = b.addRunArtifact(exe);
 
     run_cmd.step.dependOn(b.getInstallStep());
